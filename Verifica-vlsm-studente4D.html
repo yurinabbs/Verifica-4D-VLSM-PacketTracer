@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial VLSM con Cisco Packet Tracer</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #f8f9fc;
+            --bg-secondary: #eef0f5;
+            --bg-card: #ffffff;
+            --bg-code: #f1f3f8;
+            --accent-teal: #0d9488;
+            --accent-blue: #2563eb;
+            --accent-purple: #7c3aed;
+            --accent-orange: #d97706;
+            --accent-pink: #db2777;
+            --accent-red: #dc2626;
+            --accent-green: #059669;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --net-b: #7c3aed;
+            --net-c: #d97706;
+            --net-d: #db2777;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        /* HEADER */
+        .hero {
+            position: relative;
+            padding: 80px 40px 60px;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eaf6 40%, #f0fdf9 100%);
+            border-bottom: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(13,148,136,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 960px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(13,148,136,0.1);
+            border: 1px solid rgba(13,148,136,0.3);
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent-teal);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+        .hero h1 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #1e293b 30%, var(--accent-teal) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero .subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin-bottom: 32px;
+        }
+        .hero-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .hero-meta span {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .hero-meta span strong {
+            color: var(--text-secondary);
+        }
+
+        /* MAIN */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* TABLE OF CONTENTS */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px 36px;
+            margin: 48px auto;
+            max-width: 960px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .toc h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--accent-teal);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        .toc ol {
+            list-style: none;
+            counter-reset: toc-counter;
+        }
+        .toc ol li {
+            counter-increment: toc-counter;
+            margin-bottom: 8px;
+        }
+        .toc ol li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 15px;
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            transition: color 0.2s;
+        }
+        .toc ol li a::before {
+            content: counter(toc-counter, decimal-leading-zero);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            min-width: 20px;
+        }
+        .toc ol li a:hover {
+            color: var(--accent-teal);
+        }
+
+        /* SECTIONS */
+        .section {
+            padding: 56px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .section:last-child { border-bottom: none; }
+
+        .section-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent-teal);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .section h2 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+        .section h3 {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 36px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        .section p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* IMAGE PLACEHOLDERS */
+        .img-placeholder {
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 40px 24px;
+            margin: 24px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .img-placeholder::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 20px,
+                rgba(0,0,0,0.02) 20px,
+                rgba(0,0,0,0.02) 40px
+            );
+        }
+        .img-placeholder .icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+        .img-placeholder .label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-muted);
+            position: relative;
+        }
+        .img-placeholder .hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            opacity: 0.6;
+            margin-top: 6px;
+            position: relative;
+        }
+
+        /* INFO BOXES */
+        .info-box {
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent-teal);
+            border-radius: 0 8px 8px 0;
+            padding: 20px 24px;
+            margin: 24px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .info-box.warning {
+            border-left-color: var(--accent-orange);
+        }
+        .info-box.important {
+            border-left-color: var(--accent-red);
+        }
+        .info-box.success {
+            border-left-color: var(--accent-green);
+        }
+        .info-box .info-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+        .info-box .info-title.teal { color: var(--accent-teal); }
+        .info-box .info-title.orange { color: var(--accent-orange); }
+        .info-box .info-title.red { color: var(--accent-red); }
+        .info-box .info-title.green { color: var(--accent-green); }
+        .info-box p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 0;
+        }
+
+        /* CODE BLOCKS */
+        .code-block {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .code-header {
+            background: rgba(0,0,0,0.03);
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .code-header .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .code-header .dot.red { background: #ef4444; }
+        .code-header .dot.yellow { background: #f59e0b; }
+        .code-header .dot.green { background: #34d399; }
+        .code-body {
+            padding: 20px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            overflow-x: auto;
+            color: var(--text-secondary);
+        }
+        .code-body .comment { color: var(--text-muted); }
+        .code-body .cmd { color: var(--accent-teal); }
+        .code-body .output { color: var(--text-muted); font-style: italic; }
+        .code-body .highlight { color: var(--accent-orange); }
+        .code-body .placeholder {
+            background: rgba(219,39,119,0.1);
+            color: var(--accent-pink);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px dashed rgba(219,39,119,0.35);
+        }
+
+        /* TABLES */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 24px 0;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        thead {
+            background: rgba(0,0,0,0.03);
+        }
+        th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        td {
+            padding: 12px 18px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            color: var(--text-secondary);
+        }
+        tr:last-child td { border-bottom: none; }
+        td code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+        .placeholder-cell {
+            background: rgba(219,39,119,0.08);
+            color: var(--accent-pink);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            border: 1px dashed rgba(219,39,119,0.3);
+            border-radius: 4px;
+            padding: 2px 6px;
+        }
+
+        /* NETWORK LABELS */
+        .net-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .net-tag.b { background: rgba(124,58,237,0.1); color: var(--net-b); border: 1px solid rgba(124,58,237,0.25); }
+        .net-tag.c { background: rgba(217,119,6,0.1); color: var(--net-c); border: 1px solid rgba(217,119,6,0.25); }
+        .net-tag.d { background: rgba(219,39,119,0.1); color: var(--net-d); border: 1px solid rgba(219,39,119,0.25); }
+
+        /* STEP INDICATORS */
+        .step {
+            display: flex;
+            gap: 20px;
+            margin: 28px 0;
+            align-items: flex-start;
+        }
+        .step-num {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            background: rgba(13,148,136,0.1);
+            border: 1px solid rgba(13,148,136,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-teal);
+            margin-top: 2px;
+        }
+        .step-content {
+            flex: 1;
+        }
+        .step-content h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        .step-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        /* TOPOLOGY DIAGRAM */
+        .topology-diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 36px;
+            margin: 32px 0;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .topology-diagram pre {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            display: inline-block;
+            text-align: left;
+        }
+
+        /* EXERCISE BOX */
+        .exercise-box {
+            background: linear-gradient(135deg, rgba(13,148,136,0.05) 0%, rgba(124,58,237,0.05) 100%);
+            border: 1px solid rgba(13,148,136,0.2);
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin: 32px 0;
+        }
+        .exercise-box h4 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent-teal);
+            margin-bottom: 12px;
+        }
+        .exercise-box p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .exercise-box ol, .exercise-box ul {
+            margin: 12px 0 0 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .exercise-box li {
+            margin-bottom: 6px;
+        }
+
+        /* PACKET ANALYSIS */
+        .packet-view {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin: 24px 0;
+            overflow: hidden;
+        }
+        .packet-header {
+            background: rgba(37,99,235,0.08);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .packet-layer {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        .packet-layer:last-child { border-bottom: none; }
+        .packet-layer-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .layer-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .packet-field {
+            display: flex;
+            gap: 12px;
+            padding: 4px 0 4px 18px;
+            font-size: 13px;
+        }
+        .packet-field .field-name {
+            color: var(--text-muted);
+            min-width: 180px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        .packet-field .field-value {
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        /* FOOTER */
+        .footer {
+            padding: 48px 40px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* INLINE CODE */
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            background: rgba(0,0,0,0.06);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: var(--accent-teal);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .hero { padding: 48px 20px 40px; }
+            .hero h1 { font-size: 32px; }
+            .container { padding: 0 20px; }
+            .toc { padding: 24px 20px; margin: 32px 20px; }
+            .topology-diagram { padding: 20px; overflow-x: auto; }
+            .topology-diagram pre { font-size: 10px; }
+            .packet-field .field-name { min-width: 120px; }
+        }
+
+        /* SUBNET VISUAL */
+        .subnet-visual {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 24px 0;
+        }
+        .subnet-block {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+        .subnet-block:hover { transform: translateY(-2px); }
+        .subnet-block.b { border-top: 3px solid var(--net-b); }
+        .subnet-block.c { border-top: 3px solid var(--net-c); }
+        .subnet-block.d { border-top: 3px solid var(--net-d); }
+        .subnet-block .net-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .subnet-block .net-mask {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .subnet-block .net-hosts {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .subnet-visual { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+<header class="hero">
+    <div class="hero-inner">
+        <div class="hero-badge">Laboratorio di Sistemi e Reti</div>
+        <h1>VLSM con Cisco Packet Tracer</h1>
+        <p class="subtitle">
+            Tutorial pratico per implementare e testare una rete con Variable Length Subnet Mask. 
+            Imparerai a suddividere lo spazio di indirizzamento 192.168.0.0 in subnet di dimensioni diverse, 
+            verificare la connettività e analizzare i pacchetti TCP/IP.
+        </p>
+        <div class="hero-meta">
+            <span><strong>Classe:</strong> 4ª Informatica</span>
+            <span><strong>Durata:</strong> ~2 ore</span>
+            <span><strong>Software:</strong> Packet Tracer 8.x</span>
+            <span><strong>Difficoltà:</strong> Intermedia</span>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+
+<!-- ═══════════════════════════ INDICE ═══════════════════════════ -->
+<nav class="toc">
+    <h2>Indice</h2>
+    <ol>
+        <li><a href="#s1">Prerequisiti e obiettivi</a></li>
+        <li><a href="#s2">Ripasso teorico: cos'è il VLSM</a></li>
+        <li><a href="#s3">Piano di indirizzamento</a></li>
+        <li><a href="#s4">Creazione della topologia in Packet Tracer</a></li>
+        <li><a href="#s5">Configurazione degli indirizzi IP</a></li>
+        <li><a href="#s6">Test di connettività con il comando Ping</a></li>
+        <li><a href="#s7">Analisi del pacchetto TCP/IP con la Simulation Mode</a></li>
+        <li><a href="#s8">Verifica dell'isolamento tra subnet diverse</a></li>
+    </ol>
+</nav>
+
+<!-- ═══════════════════════════ SEZIONE 1 ═══════════════════════════ -->
+<section class="section" id="s1">
+    <span class="section-number">Sezione 01</span>
+    <h2>Prerequisiti e obiettivi</h2>
+
+    <h3>Prerequisiti</h3>
+    <p>
+        Prima di iniziare questo laboratorio, dovresti avere una conoscenza di base dei seguenti argomenti: 
+        il modello TCP/IP e il modello ISO/OSI, la notazione degli indirizzi IPv4 e la subnet mask in notazione decimale e CIDR, 
+        il concetto di subnetting a lunghezza fissa (FLSM), e un minimo di familiarità con l'interfaccia di Cisco Packet Tracer.
+    </p>
+
+    <h3>Obiettivi del laboratorio</h3>
+    <p>Al termine di questa attività sarai in grado di:</p>
+    <div class="exercise-box">
+        <h4>Obiettivi di apprendimento</h4>
+        <ol>
+            <li>Comprendere il vantaggio del VLSM rispetto al subnetting classico a lunghezza fissa.</li>
+            <li>Calcolare subnet di dimensioni diverse a partire da un unico blocco di indirizzi.</li>
+            <li>Costruire una topologia di rete in Packet Tracer con più subnet su un unico switch.</li>
+            <li>Verificare che i PC nella stessa subnet comunicano correttamente.</li>
+            <li>Verificare che i PC in subnet diverse <strong>non</strong> possono comunicare (assenza di un router).</li>
+            <li>Analizzare il contenuto dei pacchetti ICMP (ping) usando la modalità simulazione.</li>
+        </ol>
+    </div>
+</section>
+
+<!-- ═══════════════════════════ SEZIONE 2 ═══════════════════════════ -->
+<section class="section" id="s2">
+    <span class="section-number">Sezione 02</span>
+    <h2>Ripasso teorico: cos'è il VLSM</h2>
+
+    <p>
+        Nel subnetting tradizionale (FLSM – Fixed Length Subnet Mask) tutte le subnet ricavate da un blocco 
+        di indirizzi hanno la stessa dimensione. Questo approccio è semplice ma spesso spreca indirizzi: 
+        se una subnet ha bisogno di soli 10 host e un'altra di 100, con FLSM entrambe ricevono lo stesso 
+        numero di indirizzi.
+    </p>
+    <p>
+        Il <strong>Variable Length Subnet Mask (VLSM)</strong> risolve questo problema consentendo di 
+        creare subnet di dimensioni diverse a partire dallo stesso blocco. Ogni subnet utilizza una 
+        subnet mask diversa (da cui il nome "lunghezza variabile"), adattata al numero effettivo di host 
+        necessari.
+    </p>
+
+    <div class="info-box">
+        <div class="info-title teal">Concetto chiave</div>
+        <p>
+            Con il VLSM, tutte le subnet appartengono allo stesso indirizzo di rete principale 
+            (nel nostro caso <code>192.168.0.0</code>), ma ciascuna ha una maschera differente 
+            (<code>/28</code>, <code>/27</code>, <code>/27</code>). 
+            Due host possono comunicare direttamente (senza router) <strong>solo se</strong> si trovano 
+            nella stessa subnet, cioè se hanno lo stesso indirizzo di Rete Gammaopo l'applicazione della 
+            propria subnet mask.
+        </p>
+    </div>
+
+    <h3>Perché i PC su subnet diverse non comunicano?</h3>
+    <p>
+        Quando un host vuole inviare un pacchetto, esegue un'operazione AND logico bit a bit tra 
+        l'indirizzo IP di destinazione e la propria subnet mask. Se il risultato corrisponde alla propria 
+        rete, il pacchetto viene inviato direttamente. In caso contrario, l'host cerca un gateway 
+        predefinito (router) per instradare il pacchetto. Nella nostra topologia <strong>non è presente 
+        alcun router</strong>, quindi i pacchetti destinati a subnet diverse verranno semplicemente scartati.
+    </p>
+
+    <div class="img-placeholder">
+        <div class="icon">📐</div>
+        <div class="label">[IMG_01] — Schema concettuale VLSM: suddivisione del blocco 192.168.0.0/24 in subnet di dimensioni diverse</div>
+        <div class="hint">Catturare uno schema o disegno che mostri la suddivisione dello spazio di indirizzamento</div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════ SEZIONE 3 ═══════════════════════════ -->
+<section class="section" id="s3">
+    <span class="section-number">Sezione 03</span>
+    <h2>Piano di indirizzamento</h2>
+
+    <p>
+        Partiamo dal blocco <code>192.168.0.0/24</code> (256 indirizzi totali) e lo suddividiamo in 
+        3 subnet con maschere di lunghezza variabile. La regola fondamentale è: <strong>ordinare le subnet 
+        dalla più grande alla più piccola</strong> e assegnare i blocchi in modo contiguo senza sovrapposizioni.
+    </p>
+
+    <div class="subnet-visual">
+        <div class="subnet-block b">
+            <div class="net-name" style="color: var(--net-b);">Rete Alfa</div>
+            <div class="net-mask">/28</div>
+            <div class="net-hosts">14 host utilizzabili</div>
+        </div>
+        <div class="subnet-block c">
+            <div class="net-name" style="color: var(--net-c);">Rete Beta</div>
+            <div class="net-mask">/27</div>
+            <div class="net-hosts">30 host utilizzabili</div>
+        </div>
+        <div class="subnet-block d">
+            <div class="net-name" style="color: var(--net-d);">Rete Gamma</div>
+            <div class="net-mask">/27</div>
+            <div class="net-hosts">30 host utilizzabili</div>
+        </div>
+    </div>
+
+    <h3>Calcolo degli indirizzi di subnet</h3>
+    <div class="info-box warning">
+        <div class="info-title orange">✏️ Da compilare</div>
+        <p>
+            Completa la tabella seguente calcolando gli indirizzi per ciascuna subnet.
+            Parti dalla subnet più grande e procedi in ordine decrescente: ogni subnet inizia 
+            subito dopo l'indirizzo di broadcast della precedente. 
+            Usa i segnaposto <span class="placeholder-cell" style="font-size:12px">___.___.___._______</span> per inserire i valori corretti.
+        </p>
+    </div>
+    <p>
+        Per calcolare correttamente i range, bisogna partire dalla subnet più grande e procedere 
+        in ordine decrescente. Ogni subnet inizia subito dopo la fine della precedente.
+    </p>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Rete</th>
+                    <th>Indirizzo di rete</th>
+                    <th>Subnet Mask</th>
+                    <th>Primo host</th>
+                    <th>Ultimo host</th>
+                    <th>Broadcast</th>
+                </tr>
+            </thead>
+            <tbody>
+                                <tr>
+                    <td><span class="net-tag b">Rete Alfa</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                </tr>
+                                <tr>
+                    <td><span class="net-tag c">Rete Beta</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                </tr>
+                                <tr>
+                    <td><span class="net-tag d">Rete Gamma</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Assegnazione degli indirizzi ai PC</h3>
+    <p>
+        Ora assegniamo a ciascun PC un indirizzo IP all'interno della propria subnet. 
+        <strong>Completa tu i campi evidenziati</strong> scegliendo indirizzi validi dal range della relativa subnet.
+    </p>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Dispositivo</th>
+                    <th>Rete</th>
+                    <th>Indirizzo IP</th>
+                    <th>Subnet Mask</th>
+                    <th>Gateway</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>PC-Alfa1</code></td>
+                    <td><span class="net-tag b">Rete Alfa</span></td>
+                    <td><span class="placeholder-cell">192.168.0.______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><code>—</code></td>
+                </tr>
+                <tr>
+                    <td><code>PC-Alfa2</code></td>
+                    <td><span class="net-tag b">Rete Alfa</span></td>
+                    <td><span class="placeholder-cell">192.168.0.______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><code>—</code></td>
+                </tr>
+                <tr>
+                    <td><code>PC-Beta1</code></td>
+                    <td><span class="net-tag c">Rete Beta</span></td>
+                    <td><span class="placeholder-cell">192.168.0.______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><code>—</code></td>
+                </tr>
+                <tr>
+                    <td><code>PC-Beta2</code></td>
+                    <td><span class="net-tag c">Rete Beta</span></td>
+                    <td><span class="placeholder-cell">192.168.0.______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><code>—</code></td>
+                </tr>
+                <tr>
+                    <td><code>PC-Gamma1</code></td>
+                    <td><span class="net-tag d">Rete Gamma</span></td>
+                    <td><span class="placeholder-cell">192.168.0.______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><code>—</code></td>
+                </tr>
+                <tr>
+                    <td><code>PC-Gamma2</code></td>
+                    <td><span class="net-tag d">Rete Gamma</span></td>
+                    <td><span class="placeholder-cell">192.168.0.______</span></td>
+                    <td><span class="placeholder-cell">___.___.___._______</span></td>
+                    <td><code>—</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-box warning">
+        <div class="info-title orange">Attenzione</div>
+        <p>
+            Il campo Gateway è impostato a "—" (nessuno) perché nella nostra topologia 
+            <strong>non è presente un router</strong>. Questo è intenzionale: senza gateway, 
+            i PC di subnet diverse non potranno comunicare tra loro, dimostrando l'isolamento 
+            logico prodotto dal VLSM.
+        </p>
+    </div>
+</section>
+
+<!-- ═══════════════════════════ SEZIONE 4 ═══════════════════════════ -->
+<section class="section" id="s4">
+    <span class="section-number">Sezione 04</span>
+    <h2>Creazione della topologia in Packet Tracer</h2>
+
+    <p>
+        La nostra topologia è volutamente semplice: 6 PC collegati ad un unico switch. 
+        L'obiettivo è dimostrare che il VLSM crea un isolamento <em>logico</em> tra le reti, 
+        anche in assenza di separazione fisica.
+    </p>
+
+    <div class="topology-diagram">
+        <pre>
+                        ┌─────────────────────────────────────┐
+                        │           Switch0 (2960)            │
+                        │                                     │
+                        │  Fa0/1  Fa0/2  Fa0/3  Fa0/4        │
+                        │  Fa0/5  Fa0/6                       │
+                        └──┬──┬──┬──┬──┬──┬──────────────────┘
+                           │  │  │  │  │  │
+             ┌─────────────┘  │  │  │  │  └─────────────┐
+             │      ┌─────────┘  │  │  └─────────┐      │
+             │      │       ┌────┘  └────┐        │      │
+             │      │       │            │        │      │
+          <span style="color:var(--net-b)">PC-Alfa1</span>  <span style="color:var(--net-b)">PC-Alfa2</span>   <span style="color:var(--net-c)">PC-Beta1</span>  <span style="color:var(--net-c)">PC-Beta2</span>    <span style="color:var(--net-d)">PC-Gamma1</span>  <span style="color:var(--net-d)">PC-Gamma2</span>
+          <span style="color:var(--net-b)">▔▔▔▔▔</span>  <span style="color:var(--net-b)">▔▔▔▔▔</span>   <span style="color:var(--net-c)">▔▔▔▔▔</span>  <span style="color:var(--net-c)">▔▔▔▔▔</span>    <span style="color:var(--net-d)">▔▔▔▔▔</span>  <span style="color:var(--net-d)">▔▔▔▔▔</span>
+           <span style="color:var(--net-b)">/28</span>    <span style="color:var(--net-b)">/28</span>     <span style="color:var(--net-c)">/27</span>    <span style="color:var(--net-c)">/27</span>      <span style="color:var(--net-d)">/27</span>    <span style="color:var(--net-d)">/27</span>
+         <span style="color:var(--net-b)">━━━━━━━━━━━━━━━</span>   <span style="color:var(--net-c)">━━━━━━━━━━━━━━━</span>   <span style="color:var(--net-d)">━━━━━━━━━━━━━━━</span>
+            <span style="color:var(--net-b)">Rete Alfa</span>               <span style="color:var(--net-c)">Rete Beta</span>               <span style="color:var(--net-d)">Rete Gamma</span>
+        </pre>
+    </div>
+
+    <h3>Passaggi per costruire la topologia</h3>
+
+    <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+            <h4>Apri Packet Tracer e crea un nuovo progetto</h4>
+            <p>
+                Avvia Cisco Packet Tracer. Vai su <code>File → New</code> oppure premi 
+                <code>Ctrl+N</code> per creare un nuovo progetto vuoto.
+            </p>
+            <div class="img-placeholder">
+                <div class="icon">🖥️</div>
+                <div class="label">[IMG_02] — Schermata iniziale di Packet Tracer con il workspace vuoto</div>
+                <div class="hint">Cattura la schermata di Packet Tracer appena aperto</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+            <h4>Inserisci lo Switch</h4>
+            <p>
+                Nella barra inferiore, seleziona la categoria <strong>Network Devices → Switches</strong>. 
+                Scegli uno switch <strong>2960</strong> e trascinalo nell'area di lavoro.
+                Rinominalo "Switch0" facendo clic sull'etichetta.
+            </p>
+            <div class="img-placeholder">
+                <div class="icon">🔌</div>
+                <div class="label">[IMG_03] — Selezione e posizionamento dello switch 2960</div>
+                <div class="hint">Mostra la barra dei dispositivi con la categoria Switches evidenziata e lo switch nell'area di lavoro</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+            <h4>Inserisci i 6 PC</h4>
+            <p>
+                Dalla categoria <strong>End Devices</strong>, seleziona <strong>PC</strong> e posiziona 
+                6 PC nell'area di lavoro, disponendoli in 3 gruppi da 2 sotto lo switch. 
+                Rinomina ciascun PC secondo lo schema: 
+                <code>PC-Alfa1</code>, <code>PC-Alfa2</code>, <code>PC-Beta1</code>, <code>PC-Beta2</code>, 
+                <code>PC-Gamma1</code>, <code>PC-Gamma2</code>.
+            </p>
+            <div class="info-box">
+                <div class="info-title teal">Suggerimento</div>
+                <p>
+                    Per rinominare un dispositivo, fai clic sul testo dell'etichetta sotto il dispositivo. 
+                    Organizza i PC visivamente in 4 coppie per facilitare l'identificazione delle subnet.
+                </p>
+            </div>
+            <div class="img-placeholder">
+                <div class="icon">💻</div>
+                <div class="label">[IMG_04] — Gli 8 PC posizionati e rinominati nell'area di lavoro</div>
+                <div class="hint">Mostra tutti gli 8 PC disposti in 4 gruppi sotto lo switch</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+            <h4>Collega i PC allo switch</h4>
+            <p>
+                Seleziona il tipo di cavo <strong>Copper Straight-Through</strong> (cavo dritto) 
+                dalla barra inferiore nella sezione <strong>Connections</strong>. 
+                Collega ciascun PC alla porta FastEthernet dello switch.
+            </p>
+            <p>Mappa consigliata dei collegamenti:</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>PC</th>
+                            <th>Interfaccia PC</th>
+                            <th>Porta Switch</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>PC-Alfa1</code></td><td><code>FastEthernet0</code></td><td><code>Fa0/1</code></td></tr>
+                        <tr><td><code>PC-Alfa2</code></td><td><code>FastEthernet0</code></td><td><code>Fa0/2</code></td></tr>
+                        <tr><td><code>PC-Beta1</code></td><td><code>FastEthernet0</code></td><td><code>Fa0/3</code></td></tr>
+                        <tr><td><code>PC-Beta2</code></td><td><code>FastEthernet0</code></td><td><code>Fa0/4</code></td></tr>
+                        <tr><td><code>PC-Gamma1</code></td><td><code>FastEthernet0</code></td><td><code>Fa0/5</code></td></tr>
+                        <tr><td><code>PC-Gamma2</code></td><td><code>FastEthernet0</code></td><td><code>Fa0/6</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="img-placeholder">
+                <div class="icon">🔗</div>
+                <div class="label">[IMG_05] — Topologia completata: tutti i PC collegati allo switch con cavi Straight-Through</div>
+                <div class="hint">Cattura la topologia finale con tutti i collegamenti (i triangoli verdi dovrebbero apparire su ogni link)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-box warning">
+        <div class="info-title orange">Attendere i link</div>
+        <p>
+            Dopo aver collegato i cavi, i triangoli sulle porte cambieranno da arancione a verde. 
+            Attendi che tutti i link siano verdi prima di procedere alla configurazione IP. 
+            Se i triangoli restano arancioni, prova ad avanzare il tempo nella simulazione o attendi 
+            qualche secondo nella modalità Realtime.
+        </p>
+    </div>
+</section>
+
+<!-- ═══════════════════════════ SEZIONE 5 ═══════════════════════════ -->
+<section class="section" id="s5">
+    <span class="section-number">Sezione 05</span>
+    <h2>Configurazione degli indirizzi IP</h2>
+
+    <p>
+        Ora configureremo l'indirizzo IP e la subnet mask di ciascun PC. 
+        <strong>Scegli tu gli indirizzi</strong> dai range validi calcolati nella Sezione 03 
+        e inseriscili al posto dei segnaposto.
+    </p>
+
+    <h3>Procedura di configurazione (per ogni PC)</h3>
+
+    <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+            <h4>Apri la configurazione del PC</h4>
+            <p>
+                Fai <strong>doppio clic</strong> sul PC per aprire la finestra delle proprietà. 
+                Vai alla scheda <strong>Desktop</strong> e seleziona <strong>IP Configuration</strong>.
+            </p>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+            <h4>Inserisci i parametri di rete</h4>
+            <p>
+                Seleziona <strong>Static</strong> (configurazione statica) e compila i campi 
+                IP Address e Subnet Mask. Lascia vuoto il campo Default Gateway.
+            </p>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+            <h4>Chiudi e ripeti</h4>
+            <p>
+                Chiudi la finestra e ripeti l'operazione per tutti i 6 PC, ciascuno con il proprio indirizzo.
+            </p>
+        </div>
+    </div>
+
+
+    <h3>Configurazione di PC-Alfa1</h3>
+    <div class="code-block">
+        <div class="code-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            PC-Alfa1 → Desktop → IP Configuration
+        </div>
+        <div class="code-body">
+IP Address:     <span class="placeholder">___192.168.0.______</span>
+Subnet Mask:    <span class="placeholder">___.___.___._______</span>
+Default Gateway: <span class="comment">(lasciare vuoto)</span>
+        </div>
+    </div>
+
+    <h3>Configurazione di PC-Alfa2</h3>
+    <div class="code-block">
+        <div class="code-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            PC-Alfa2 → Desktop → IP Configuration
+        </div>
+        <div class="code-body">
+IP Address:     <span class="placeholder">___192.168.0.______</span>
+Subnet Mask:    <span class="placeholder">___.___.___._______</span>
+Default Gateway: <span class="comment">(lasciare vuoto)</span>
+        </div>
+    </div>
+
+    <h3>Configurazione di PC-Beta1</h3>
+    <div class="code-block">
+        <div class="code-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            PC-Beta1 → Desktop → IP Configuration
+        </div>
+        <div class="code-body">
+IP Address:     <span class="placeholder">___192.168.0.______</span>
+Subnet Mask:    <span class="placeholder">___.___.___._______</span>
+Default Gateway: <span class="comment">(lasciare vuoto)</span>
+        </div>
+    </div>
+
+    <h3>Configurazione di PC-Beta2</h3>
+    <div class="code-block">
+        <div class="code-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            PC-Beta2 → Desktop → IP Configuration
+        </div>
+        <div class="code-body">
+IP Address:     <span class="placeholder">___192.168.0.______</span>
+Subnet Mask:    <span class="placeholder">___.___.___._______</span>
+Default Gateway: <span class="comment">(lasciare vuoto)</span>
+        </div>
+    </div>
+
+    <h3>Configurazione di PC-Gamma1</h3>
+    <div class="code-block">
+        <div class="code-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            PC-Gamma1 → Desktop → IP Configuration
+        </div>
+        <div class="code-body">
+IP Address:     <span class="placeholder">___192.168.0.______</span>
+Subnet Mask:    <span class="placeholder">___.___.___._______</span>
+Default Gateway: <span class="comment">(lasciare vuoto)</span>
+        </div>
+    </div>
+
+    <h3>Configurazione di PC-Gamma2</h3>
+    <div class="code-block">
+        <div class="code-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            PC-Gamma2 → Desktop → IP Configuration
+        </div>
+        <div class="code-body">
+IP Address:     <span class="placeholder">___192.168.0.______</span>
+Subnet Mask:    <span class="placeholder">___.___.___._______</span>
+Default Gateway: <span class="comment">(lasciare vuoto)</span>
+        </div>
+    </div>
+
+    <div class="img-placeholder">
+        <div class="icon">✅</div>
+        <div class="label">[IMG_07] — Panoramica della topologia con tutti i PC configurati</div>
+        <div class="hint">Mostra la topologia completa; opzionalmente, posiziona il mouse su un PC per vedere il tooltip con l'IP</div>
+    </div>
+
+    <div class="exercise-box">
+        <h4>✏️ Esercizio: compila la tabella</h4>
+        <p>
+            Prima di proseguire, compila la tabella della Sezione 03 con gli indirizzi IP che hai 
+            effettivamente assegnato ai PC. Verifica che ciascun indirizzo rientri nel range valido 
+            della propria subnet e che non sia né l'indirizzo di rete né l'indirizzo di broadcast.
+        </p>
+    </div>
+</section>
+
+<!-- ═══════════════════════════ SEZIONE 6 ═══════════════════════════ -->
+<section class="section" id="s6">
+    <span class="section-number">Sezione 06</span>
+    <h2>Test di connettività con il comando Ping</h2>
+
+    <p>
+        Il comando <code>ping</code> utilizza il protocollo <strong>ICMP</strong> (Internet Control Message 
+        Protocol) per verificare se un host è raggiungibile. Invia un messaggio <em>Echo Request</em> e 
+        attende un <em>Echo Reply</em> dal destinatario.
+    </p>
+
+    <h3>Test 1 — Ping tra PC della stessa subnet (deve funzionare ✓)</h3>
+
+    <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+            <h4>Apri il Command Prompt di PC-Alfa1</h4>
+            <p>
+                Fai doppio clic su <code>PC-Alfa1</code> → scheda <strong>Desktop</strong> → 
+                <strong>Command Prompt</strong>.
+            </p>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+            <h4>Esegui il ping verso PC-Alfa2</h4>
+            <p>Digita il seguente comando, sostituendo il segnaposto con l'IP che hai assegnato a PC-Alfa2:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                    PC-Alfa1 > Command Prompt
+                </div>
+                <div class="code-body">
+<span class="cmd">C:\&gt;</span> ping <span class="placeholder">192.168.0.______</span>
+
+<span class="output">Pinging 192.168.0.______ with 32 bytes of data:</span>
+
+<span class="output">Reply from 192.168.0.______: bytes=32 time&lt;1ms TTL=128</span>
+<span class="output">Reply from 192.168.0.______: bytes=32 time&lt;1ms TTL=128</span>
+<span class="output">Reply from 192.168.0.______: bytes=32 time&lt;1ms TTL=128</span>
+<span class="output">Reply from 192.168.0.______: bytes=32 time&lt;1ms TTL=128</span>
+
+<span class="output">Ping statistics for 192.168.0.______:</span>
+<span class="output">    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-box success">
+        <div class="info-title green">Risultato atteso</div>
+        <p>
+            Il ping ha successo: 4 pacchetti inviati, 4 ricevuti, 0% perdita.
+            Questo conferma che PC-Alfa1 e PC-Alfa2, essendo nella stessa subnet (/28), 
+            possono comunicare direttamente attraverso lo switch.
+        </p>
+    </div>
+
+    <div class="img-placeholder">
+        <div class="icon">📟</div>
+        <div class="label">[IMG_08] — Output del comando ping da PC-Alfa1 verso PC-Alfa2 (successo)</div>
+        <div class="hint">Cattura il Command Prompt di PC-Alfa1 mostrando il ping riuscito con 4 Reply</div>
+    </div>
+
+    <div class="exercise-box">
+        <h4>✏️ Esercizio: verifica le altre subnet</h4>
+        <p>Ripeti il test di ping anche per le altre coppie della stessa subnet:</p>
+        <ol>
+            <li><code>PC-Beta1</code> → <code>PC-Beta2</code> (Rete Beta, /27)</li>
+            <li><code>PC-Gamma1</code> → <code>PC-Gamma2</code> (Rete Gamma, /27)</li>
+        </ol>
+        <p>Tutti e tre devono restituire <strong>4 Reply con 0% loss</strong>.</p>
+    </div>
+
+    <div class="img-placeholder">
+        <div class="icon">📟</div>
+        <div class="label">[IMG_09] — Output del ping tra PC-Beta1 e PC-Beta2 (successo)</div>
+        <div class="hint">Cattura il risultato del ping nella Rete Beta</div>
+    </div>
+
+    <div class="img-placeholder">
+        <div class="icon">📟</div>
+        <div class="label">[IMG_10] — Output del ping tra PC-Gamma1 e PC-Gamma2 (successo)</div>
+        <div class="hint">Cattura il risultato del ping nella Rete Beta</div>
+    </div>
+
+    <div class="img-placeholder">
+        <div class="icon">📟</div>
+        <div class="label">[IMG_11] — Output del ping tra PC-Gamma1 e PC-Gamma2 (successo)</div>
+        <div class="hint">Cattura il risultato del ping nella Rete Gamma</div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════ SEZIONE 7 ═══════════════════════════ -->
+<section class="section" id="s7">
+    <span class="section-number">Sezione 07</span>
+    <h2>Analisi del pacchetto TCP/IP con la Simulation Mode</h2>
+
+    <p>
+        Packet Tracer offre una potente funzionalità di <strong>Simulation Mode</strong> che permette 
+        di catturare e analizzare ogni singolo pacchetto che attraversa la rete. Useremo questa modalità 
+        per "aprire" un pacchetto ICMP generato dal comando <code>ping</code> e osservare la struttura 
+        a livelli del modello TCP/IP.
+    </p>
+
+    <h3>Passare alla modalità Simulazione</h3>
+
+    <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+            <h4>Attiva la Simulation Mode</h4>
+            <p>
+                Nella parte inferiore destra dell'interfaccia di Packet Tracer, individua il pannello 
+                con due schede: <strong>Realtime</strong> e <strong>Simulation</strong>. 
+                Clicca su <strong>Simulation</strong> per passare alla modalità di simulazione.
+            </p>
+            <div class="img-placeholder">
+                <div class="icon">⏱️</div>
+                <div class="label">[IMG_12] — Il pannello Simulation Mode con il pulsante evidenziato</div>
+                <div class="hint">Mostra la barra inferiore di Packet Tracer con la scheda Simulation selezionata</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+            <h4>Filtra per ICMP</h4>
+            <p>
+                Nel pannello Simulation (a destra), clicca su <strong>Edit Filters</strong>. 
+                Deseleziona tutti i protocolli e seleziona solo <strong>ICMP</strong>. 
+                Questo ci permette di visualizzare solo i pacchetti ping, filtrando il traffico ARP 
+                e altro che potrebbe confondere l'analisi.
+            </p>
+            <div class="img-placeholder">
+                <div class="icon">🔍</div>
+                <div class="label">[IMG_13] — Filtro protocolli impostato su ICMP nella Simulation Mode</div>
+                <div class="hint">Mostra la finestra Edit Filters con solo ICMP selezionato</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+            <h4>Crea un pacchetto ping con Add Simple PDU</h4>
+            <p>
+                Clicca sull'icona <strong>Add Simple PDU</strong> (la busta chiusa) nella barra 
+                degli strumenti a destra. Poi clicca su <code>PC-Alfa1</code> come sorgente e su 
+                <code>PC-Alfa2</code> come destinazione.
+            </p>
+            <p>
+                Una busta animata apparirà su <code>PC-Alfa1</code>. Non premere ancora 
+                <strong>Capture/Forward</strong>.
+            </p>
+            <div class="img-placeholder">
+                <div class="icon">✉️</div>
+                <div class="label">[IMG_14] — PDU (busta) creata su PC-Alfa1, pronta per essere inviata</div>
+                <div class="hint">Mostra la busta apparsa sopra PC-Alfa1 nella topologia</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+            <h4>Avanza passo-passo e cattura il pacchetto</h4>
+            <p>
+                Premi <strong>Capture/Forward</strong> (il pulsante ▶| nel pannello Simulation) 
+                per far avanzare il pacchetto di un hop alla volta. Osserva il pacchetto che si muove 
+                da <code>PC-Alfa1</code> allo <code>Switch</code> e poi a <code>PC-Alfa2</code>.
+            </p>
+            <p>
+                Quando la busta compare nel pannello <strong>Event List</strong>, 
+                fai clic sulla riga corrispondente per aprire i <strong>dettagli del pacchetto</strong>.
+            </p>
+            <div class="img-placeholder">
+                <div class="icon">📋</div>
+                <div class="label">[IMG_15] — Event List con il pacchetto ICMP catturato</div>
+                <div class="hint">Mostra l'Event List con le righe dei pacchetti ICMP; evidenzia la riga su cui cliccare</div>
+            </div>
+        </div>
+    </div>
+
+    <h3>Analisi dettagliata dei livelli del pacchetto</h3>
+
+    <p>
+        Cliccando sul pacchetto nell'Event List (o direttamente sulla busta nella topologia), 
+        si apre la finestra <strong>PDU Information</strong>. Questa mostra i dati del pacchetto 
+        organizzati secondo i livelli del modello OSI/TCP-IP. Analizziamoli uno per uno.
+    </p>
+
+    <div class="packet-view">
+        <div class="packet-header">📦 PDU Information — ICMP Echo Request (Ping)</div>
+
+        <div class="packet-layer">
+            <div class="packet-layer-title">
+                <span class="layer-dot" style="background: var(--accent-orange);"></span>
+                <span style="color: var(--accent-orange);">Layer 1 — Physical (Livello Fisico)</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Port</span>
+                <span class="field-value">FastEthernet0</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Link Status</span>
+                <span class="field-value">Up</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Bandwidth</span>
+                <span class="field-value">100 Mbps</span>
+            </div>
+        </div>
+
+        <div class="packet-layer">
+            <div class="packet-layer-title">
+                <span class="layer-dot" style="background: var(--accent-blue);"></span>
+                <span style="color: var(--accent-blue);">Layer 2 — Data Link (Ethernet II)</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Src MAC Address</span>
+                <span class="field-value" style="color: var(--accent-pink);">____:____:____  (MAC di PC-Alfa1)</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Dest MAC Address</span>
+                <span class="field-value" style="color: var(--accent-pink);">____:____:____  (MAC di PC-Alfa2)</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">EtherType</span>
+                <span class="field-value">0x0800 (IPv4)</span>
+            </div>
+        </div>
+
+        <div class="packet-layer">
+            <div class="packet-layer-title">
+                <span class="layer-dot" style="background: var(--accent-green);"></span>
+                <span style="color: var(--accent-green);">Layer 3 — Network (IPv4)</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Version</span>
+                <span class="field-value">4 (IPv4)</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Header Length</span>
+                <span class="field-value">20 bytes</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">TTL (Time To Live)</span>
+                <span class="field-value">128</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Protocol</span>
+                <span class="field-value">1 (ICMP)</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Source IP</span>
+                <span class="field-value" style="color: var(--accent-pink);">192.168.0.______  (IP di PC-Alfa1)</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Destination IP</span>
+                <span class="field-value" style="color: var(--accent-pink);">192.168.0.______  (IP di PC-Alfa2)</span>
+            </div>
+        </div>
+
+        <div class="packet-layer">
+            <div class="packet-layer-title">
+                <span class="layer-dot" style="background: var(--accent-purple);"></span>
+                <span style="color: var(--accent-purple);">Layer 4+ — ICMP Payload</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Type</span>
+                <span class="field-value">8 (Echo Request)</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Code</span>
+                <span class="field-value">0</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Data Size</span>
+                <span class="field-value">32 bytes</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="img-placeholder">
+        <div class="icon">🔬</div>
+        <div class="label">[IMG_16] — Finestra PDU Information: scheda OSI Model con i dettagli di ogni livello</div>
+        <div class="hint">Cattura la schermata PDU Information espansa con tutti i livelli visibili</div>
+    </div>
+
+    <div class="img-placeholder">
+        <div class="icon">🔬</div>
+        <div class="label">[IMG_17] — Finestra PDU Information: scheda Inbound/Outbound PDU Details</div>
+        <div class="hint">Cattura la scheda che mostra i dettagli in formato tabellare (Inbound PDU / Outbound PDU)</div>
+    </div>
+
+    <div class="info-box">
+        <div class="info-title teal">Cosa osservare nel pacchetto</div>
+        <p>
+            Nota come ogni livello aggiunge le proprie informazioni (processo di <strong>incapsulamento</strong>): 
+            il Livello 2 aggiunge gli indirizzi MAC (sorgente e destinazione), il Livello 3 aggiunge 
+            gli indirizzi IP e il campo Protocol (1 = ICMP), e il payload ICMP contiene il tipo di 
+            messaggio (8 = Echo Request per la richiesta, 0 = Echo Reply per la risposta).
+        </p>
+    </div>
+
+    <h3>Il pacchetto Echo Reply (risposta)</h3>
+    <p>
+        Premi ancora <strong>Capture/Forward</strong> per osservare il pacchetto di ritorno. 
+        Ora PC-Alfa2 risponde con un <strong>Echo Reply</strong>. Cliccando su questo secondo pacchetto, 
+        noterai che gli indirizzi IP sorgente e destinazione sono <strong>invertiti</strong> 
+        e il tipo ICMP è cambiato da 8 a 0.
+    </p>
+
+    <div class="packet-view">
+        <div class="packet-header">📦 PDU Information — ICMP Echo Reply (Risposta)</div>
+        <div class="packet-layer">
+            <div class="packet-layer-title">
+                <span class="layer-dot" style="background: var(--accent-green);"></span>
+                <span style="color: var(--accent-green);">Layer 3 — Network (IPv4)</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Source IP</span>
+                <span class="field-value" style="color: var(--accent-pink);">192.168.0.______  (IP di PC-Alfa2 — ora è la sorgente!)</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Destination IP</span>
+                <span class="field-value" style="color: var(--accent-pink);">192.168.0.______  (IP di PC-Alfa1 — ora è la destinazione!)</span>
+            </div>
+        </div>
+        <div class="packet-layer">
+            <div class="packet-layer-title">
+                <span class="layer-dot" style="background: var(--accent-purple);"></span>
+                <span style="color: var(--accent-purple);">Layer 4+ — ICMP Payload</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Type</span>
+                <span class="field-value">0 (Echo Reply) — era 8 nell'Echo Request!</span>
+            </div>
+            <div class="packet-field">
+                <span class="field-name">Code</span>
+                <span class="field-value">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="img-placeholder">
+        <div class="icon">🔬</div>
+        <div class="label">[IMG_18] — PDU Information dell'Echo Reply: nota gli IP invertiti e Type = 0</div>
+        <div class="hint">Cattura i dettagli del pacchetto di risposta, evidenziando il campo Type e gli IP invertiti</div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════ SEZIONE 8 ═══════════════════════════ -->
+<section class="section" id="s8">
+    <span class="section-number">Sezione 08</span>
+    <h2>Verifica dell'isolamento tra subnet diverse</h2>
+
+    <p>
+        Ora verifichiamo l'aspetto più importante del VLSM: l'isolamento logico. 
+        Proveremo a far comunicare PC appartenenti a subnet diverse e osserveremo che 
+        <strong>il ping fallisce</strong>, nonostante siano fisicamente collegati allo stesso switch.
+    </p>
+
+    <h3>Test 2 — Ping tra subnet diverse (deve fallire ✗)</h3>
+
+    <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+            <h4>Da PC-Alfa1, esegui un ping verso PC-Beta1</h4>
+            <p>Apri il Command Prompt di <code>PC-Alfa1</code> e prova a raggiungere un host della Rete Beta:</p>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                    PC-Alfa1 > Command Prompt
+                </div>
+                <div class="code-body">
+<span class="cmd">C:\&gt;</span> ping <span class="placeholder">192.168.0.______</span>  <span class="comment">&lt;-- IP di PC-Beta1</span>
+
+<span class="output">Pinging 192.168.0.______ with 32 bytes of data:</span>
+
+<span class="highlight">Request timed out.</span>
+<span class="highlight">Request timed out.</span>
+<span class="highlight">Request timed out.</span>
+<span class="highlight">Request timed out.</span>
+
+<span class="output">Ping statistics for 192.168.0.______:</span>
+<span class="output">    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-box important">
+        <div class="info-title red">Risultato atteso: connessione FALLITA</div>
+        <p>
+            Il ping fallisce con <strong>"Request timed out"</strong> e 100% di pacchetti persi. 
+            Anche se PC-Alfa1 e PC-Beta1 sono collegati allo stesso switch fisico, appartengono a subnet 
+            diverse (/28 vs /27). PC-Alfa1 calcola che l'IP di destinazione non è nella propria subnet 
+            e cerca un gateway predefinito per instradare il pacchetto. Non avendo configurato alcun 
+            gateway, il pacchetto viene scartato.
+        </p>
+    </div>
+
+    <div class="img-placeholder">
+        <div class="icon">❌</div>
+        <div class="label">[IMG_19] — Output del comando ping da PC-Alfa1 verso PC-Beta1 (fallimento - Request timed out)</div>
+        <div class="hint">Cattura il Command Prompt di PC-Alfa1 con il ping fallito verso un IP della Rete Beta</div>
+    </div>
+
+    <h3>Analisi nella Simulation Mode del ping fallito</h3>
+
+    <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+            <h4>Passa in Simulation Mode e ripeti il test</h4>
+            <p>
+                Torna in <strong>Simulation Mode</strong>, crea un <strong>Add Simple PDU</strong> 
+                da <code>PC-Alfa1</code> a <code>PC-Beta1</code>. Premi <strong>Capture/Forward</strong> 
+                e osserva cosa succede.
+            </p>
+            <p>
+                Noterai che il pacchetto viene creato su <code>PC-Alfa1</code> ma viene 
+                <strong>immediatamente scartato</strong> (contrassegnato con una <strong>X rossa</strong>) 
+                perché il PC non sa a quale gateway inviare un pacchetto destinato a una Rete Gammaiversa.
+            </p>
+        </div>
+    </div>
+
+    <div class="img-placeholder">
+        <div class="icon">🚫</div>
+        <div class="label">[IMG_20] — Simulation Mode: il pacchetto da PC-Alfa1 verso PC-Beta1 viene scartato (X rossa)</div>
+        <div class="hint">Cattura la topologia in Simulation Mode mostrando la X rossa sul pacchetto scartato</div>
+    </div>
+
+    <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+            <h4>Esamina i dettagli del pacchetto scartato</h4>
+            <p>
+                Clicca sulla riga nell'Event List per vedere le informazioni del PDU. 
+                Noterai che Packet Tracer spiega il motivo dello scarto: il dispositivo ha determinato 
+                che l'indirizzo di destinazione non è nella rete locale e non è stato configurato un 
+                gateway predefinito.
+            </p>
+        </div>
+    </div>
+
+    <div class="img-placeholder">
+        <div class="icon">📋</div>
+        <div class="label">[IMG_21] — PDU Information del pacchetto scartato: motivo dello scarto</div>
+        <div class="hint">Cattura la finestra PDU che mostra il messaggio di errore o la spiegazione dello scarto</div>
+    </div>
+
+    <div class="exercise-box">
+        <h4>✏️ Esercizio: prova tutte le combinazioni cross-subnet</h4>
+        <p>
+            Esegui il ping tra le seguenti coppie di PC e verifica che <strong>tutti falliscano</strong>:
+        </p>
+        <ol>
+            <li><code>PC-Alfa1</code> → <code>PC-Gamma1</code> (Rete Alfa → Rete Gamma)</li>
+            <li><code>PC-Beta1</code> → <code>PC-Gamma1</code> (Rete Beta → Rete Gamma)</li>
+        </ol>
+        <p>
+            Annota i risultati e rispondi: perché tutti falliscono? Cosa servirebbe per farli comunicare?
+        </p>
+    </div>
+
+    <h3>Riepilogo dei test</h3>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sorgente</th>
+                    <th>Destinazione</th>
+                    <th>Stessa subnet?</th>
+                    <th>Ping</th>
+                    <th>Motivazione</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>PC-Alfa1</code></td>
+                    <td><code>PC-Alfa2</code></td>
+                    <td style="color: var(--accent-green);">Sì (/28)</td>
+                    <td style="color: var(--accent-green);">✓ Successo</td>
+                    <td>Stessa rete logica, comunicazione diretta via switch</td>
+                </tr>
+                <tr>
+                    <td><code>PC-Alfa1</code></td>
+                    <td><code>PC-Beta1</code></td>
+                    <td style="color: var(--accent-red);">No</td>
+                    <td style="color: var(--accent-red);">✗ Fallito</td>
+                    <td>Subnet diverse, nessun gateway configurato</td>
+                </tr>
+                <tr>
+                    <td><code>PC-Beta1</code></td>
+                    <td><code>PC-Beta2</code></td>
+                    <td style="color: var(--accent-green);">Sì (/27)</td>
+                    <td style="color: var(--accent-green);">✓ Successo</td>
+                    <td>Stessa rete logica, comunicazione diretta via switch</td>
+                </tr>
+                <tr>
+                    <td><code>PC-Gamma1</code></td>
+                    <td><code>PC-Gamma2</code></td>
+                    <td style="color: var(--accent-green);">Sì (/27)</td>
+                    <td style="color: var(--accent-green);">✓ Successo</td>
+                    <td>Stessa rete logica, comunicazione diretta via switch</td>
+                </tr>
+                <tr>
+                    <td><code>PC-Alfa1</code></td>
+                    <td><code>PC-Gamma1</code></td>
+                    <td style="color: var(--accent-red);">No</td>
+                    <td style="color: var(--accent-red);">✗ Fallito</td>
+                    <td>Subnet diverse, nessun gateway configurato</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+</div>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<footer class="footer">
+    <p>
+        Tutorial VLSM con Cisco Packet Tracer — Laboratorio di Sistemi e Reti — Classe 4ª Informatica
+    </p>
+    <p style="margin-top: 8px; opacity: 0.6;">
+        Completa i segnaposto con i tuoi indirizzi IP e inserisci le schermate catturate durante lo svolgimento.
+    </p>
+</footer>
+
+</body>
+</html>
